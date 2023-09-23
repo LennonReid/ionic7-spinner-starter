@@ -2,6 +2,8 @@
 
 This project aims to help you test what the ionic spinner look like with differnt properties online.
 
+[Demo]('https://ionic7-spinner-starter.vercel.app/')
+
 ## Install
 
 install node_modules packages
