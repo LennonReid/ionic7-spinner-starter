@@ -9,7 +9,7 @@ import { Capacitor } from '@capacitor/core';
 import { App } from '@capacitor/app';
 @Component({
   selector: "app-home-child",
-  template: `短发的说法是的`,
+  template: ``,
   standalone: true,
   imports: [CommonModule, FormsModule, IonicModule],
 })
