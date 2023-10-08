@@ -1,9 +1,15 @@
 import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 import { FormsModule } from "@angular/forms";
-import { IonicModule, LoadingController } from "@ionic/angular";
+import { IonicModule, LoadingController, NavController } from "@ionic/angular";
 import * as moment from "moment";
+import { IonicSelectableModalComponent } from "../components/ionic-selectable/ionic-selectable-modal.component";
+import { IonicSelectableComponent } from "../components/ionic-selectable/ionic-selectable.component";
+// import { IonicSelectableModalComponent, IonicSelectableComponent } from "../aa/components/ionic-selectable/ionic-selectable.module";
 
+import { Capacitor } from '@capacitor/core';
+import { App } from '@capacitor/app';
+import { RouterModule } from "@angular/router";
 @Component({
   selector: "app-home",
   template: `
@@ -31,13 +37,29 @@ import * as moment from "moment";
         <ion-item>
           <ion-input label="Duration" [(ngModel)]="duration"></ion-input>
         </ion-item>
-
+              <ion-item>
+                <ion-label>请选择设备</ion-label>
+                <ionic-selectable
+                #selectable
+                  [isMultiple]="true"
+                  [items]="equipmentOptions"
+                  itemValueField="equipmentId"
+                  itemTextField="equipmentName"
+                  [canSearch]="true"
+                  (click)="openModal(selectable)"
+                  (onOpen)="openModal()"
+                >
+                dfasfas
+                </ionic-selectable>
+              </ion-item>
         <ion-item>
           <ion-select
             label="Spinner"
             [(ngModel)]="selectedSpinner"
             (ionChange)="onSpinnerChanged()"
           >
+
+
             <ion-select-option
               *ngFor="let spinner of spinners"
               [value]="spinner"
@@ -94,6 +116,9 @@ import * as moment from "moment";
       <ion-button expand="full" (click)="testSpinner()" color="primary">
         Test Spinner
       </ion-button>
+      <ion-button expand="full" (click)="goChild()" color="primary">
+        Go Child
+      </ion-button>
 
       <div class="spinner-container" *ngIf="loading">
         <ion-spinner
@@ -112,9 +137,60 @@ import * as moment from "moment";
     </ion-footer>
   `,
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule],
+  imports: [CommonModule, FormsModule, RouterModule, IonicModule, IonicSelectableModalComponent, IonicSelectableComponent],
 })
 export class HomePage {
+  equipmentOptions = [
+    {
+      "searchValue": null,
+      "createBy": null,
+      "createTime": "2022-05-29 16:08:14",
+      "updateBy": null,
+      "updateTime": "2023-03-26 20:45:23",
+      "remark": null,
+      "params": {},
+      "parentName": null,
+      "parentId": null,
+      "orderNum": null,
+      "ancestors": null,
+      "children": [],
+      "equipmentId": 3,
+      "equipmentCode": "CNC-1",
+      "equipmentName": "13号线OP10",
+      "model": "640",
+      "brand": "Mazak",
+      "maintenanceDate": null,
+      "maintenacePeriod": null,
+      "equipmentType": "cnc",
+      "costCenterId": null,
+      "tag": "机加工,13号线,4车间,关键工位",
+      "measuringToolConfig": "{\"Volt\": 15, \"Carbon\": 15, \"Energy\": 15, \"Status\": 35, \"ToolNo\": 35, \"BatchNo\": 35, \"Current\": 15, \"FeedLoad\": 35, \"FeedRate\": 35, \"FeedSpeed\": 35, \"PartCount\": 44, \"PartPattern\": 35, \"ProgramName\": 35, \"SpindleLoad\": 35, \"SpindleRate\": 35, \"SpindleSpeed\": 35}"
+    },
+    {
+      "searchValue": null,
+      "createBy": null,
+      "createTime": "2022-05-29 16:08:54",
+      "updateBy": null,
+      "updateTime": "2022-12-21 14:35:11",
+      "remark": null,
+      "params": {},
+      "parentName": null,
+      "parentId": null,
+      "orderNum": null,
+      "ancestors": null,
+      "children": [],
+      "equipmentId": 4,
+      "equipmentCode": "CNC-2",
+      "equipmentName": "13号线OP20-1",
+      "model": "Matrix",
+      "brand": "Mazak",
+      "maintenanceDate": null,
+      "maintenacePeriod": null,
+      "equipmentType": "cnc",
+      "costCenterId": null,
+      "tag": "机加工,13号线,4车间",
+      "measuringToolConfig": "{\"Volt\": 16, \"Carbon\": 16, \"Energy\": 16, \"Status\": 36, \"ToolNo\": 36, \"BatchNo\": 36, \"Current\": 16, \"FeedLoad\": 36, \"FeedRate\": 36, \"FeedSpeed\": 36, \"PartCount\": 45, \"PartPattern\": 36, \"ProgramName\": 36, \"SpindleLoad\": 36, \"SpindleRate\": 36, \"SpindleSpeed\": 36}"
+    }]
   message = void 0;
   // ms
   duration = void 0;
@@ -147,8 +223,14 @@ export class HomePage {
   animated = false;
   backdropDismiss = true;
   showBackdrop = true;
-  constructor(private loadingController: LoadingController) { }
+  constructor(
+    private loadingController: LoadingController,
+    private navController: NavController
+  ) { }
 
+  openModal(selectable?: any) {
+    alert(selectable)
+  }
   onSpinnerChanged() {
     // Handle spinner change
   }
@@ -160,6 +242,10 @@ export class HomePage {
   testSpinner() {
     this.loading = true;
     this.presentLoading();
+  }
+  goChild() {
+    this.navController.navigateForward(['home/child'], { replaceUrl: true });
+
   }
 
   async presentLoading() {
@@ -189,5 +275,18 @@ export class HomePage {
 
   toggleMenu() {
     // Implement menu toggle logic here
+  }
+  ngOnInit(): void {
+    if (Capacitor.getPlatform() === 'android') {
+      this.registerAndroidListener();
+    }
+  }
+  registerAndroidListener() {
+    App.addListener('backButton', (data) => {
+      console.log(data.canGoBack);
+      alert(data.canGoBack);
+      if (data.canGoBack) window.history.back();
+      else App.exitApp();
+    });
   }
 }
